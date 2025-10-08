@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """MCP Client implementation with Ollama integration."""
 
 import asyncio
@@ -40,7 +41,7 @@ class MCPClient:
         logger.info(f"Connecting to MCP server: {server_script_path}")
 
         server_params = StdioServerParameters(
-            command="python",
+            command="python3",
             args=[server_script_path],
             env=None
         )

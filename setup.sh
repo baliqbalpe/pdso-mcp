@@ -25,26 +25,33 @@ fi
 PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
 echo -e "${GREEN}Python $PYTHON_VERSION found${NC}"
 
+# Install virtualenv if not present
+echo -e "\n${YELLOW}Checking virtualenv...${NC}"
+if ! python3 -m pip show virtualenv &> /dev/null; then
+    echo -e "${YELLOW}Installing virtualenv...${NC}"
+    python3 -m pip install virtualenv
+fi
+
 # Create virtual environment
 echo -e "\n${YELLOW}Creating virtual environment...${NC}"
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-    echo -e "${GREEN}Virtual environment created${NC}"
-else
-    echo -e "${GREEN}Virtual environment already exists${NC}"
+if [ -d "venv" ]; then
+    echo -e "${YELLOW}Removing existing venv directory...${NC}"
+    rm -rf venv
 fi
+python3 -m virtualenv venv
+echo -e "${GREEN}Virtual environment created${NC}"
 
 # Activate virtual environment
 echo -e "\n${YELLOW}Activating virtual environment...${NC}"
-source venv/bin/activate
+. venv/bin/activate
 
 # Upgrade pip
 echo -e "\n${YELLOW}Upgrading pip...${NC}"
-pip install --upgrade pip
+python3 -m pip install --upgrade pip
 
 # Install requirements
 echo -e "\n${YELLOW}Installing dependencies...${NC}"
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 echo -e "${GREEN}Dependencies installed${NC}"
 
 # Check if Ollama is installed
@@ -107,7 +114,9 @@ echo -e "Setup completed successfully!"
 echo -e "========================================${NC}"
 echo -e "\n${YELLOW}To start the MCP client, run:${NC}"
 echo -e "  source venv/bin/activate"
-echo -e "  python main.py"
+echo -e "  python3 main.py"
 echo -e "\n${YELLOW}Or use the start script:${NC}"
 echo -e "  ./start.sh"
+echo -e "\n${YELLOW}Note: The virtual environment is now activated in this shell.${NC}"
+echo -e "${YELLOW}You can run the client directly with: python3 main.py${NC}"
 

@@ -18,16 +18,17 @@ fi
 
 # Activate virtual environment
 echo -e "${YELLOW}Activating virtual environment...${NC}"
-source venv/bin/activate
+. venv/bin/activate
 
 # Check if Ollama is running
 if ! pgrep -x "ollama" > /dev/null; then
     echo -e "${YELLOW}Starting Ollama service...${NC}"
     nohup ollama serve > ollama.log 2>&1 &
     sleep 3
+    echo -e "${GREEN}Ollama service started${NC}"
 fi
 
 # Start the MCP client
 echo -e "${GREEN}Starting MCP Client...${NC}\n"
-python main.py
+python3 main.py
 

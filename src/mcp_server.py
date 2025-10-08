@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """MCP Server implementation with tools."""
 
 import asyncio

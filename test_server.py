@@ -2,6 +2,12 @@
 """Test script to verify MCP server tools work correctly."""
 
 import asyncio
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.tools import MCPTools
 
 async def test_tools():

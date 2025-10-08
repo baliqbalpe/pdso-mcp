@@ -1,12 +1,17 @@
+#!/usr/bin/env python3
 """CLI interface for MCP client."""
 
 import asyncio
 import sys
+import os
 from pathlib import Path
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.prompt import Prompt
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.mcp_client import MCPClient
 from src.config import OLLAMA_MODEL
