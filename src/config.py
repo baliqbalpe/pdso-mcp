@@ -1,11 +1,18 @@
+#!/usr/bin/env python3
 """Configuration management for MCP client and server."""
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Find and load .env from project root
+current_dir = Path(__file__).parent
+project_root = current_dir.parent
+env_path = project_root / '.env'
+
 # Load environment variables
-load_dotenv()
+load_dotenv(dotenv_path=env_path)
 
 # MCP Configuration
 MCP_SERVER_NAME = os.getenv("MCP_SERVER_NAME", "local-mcp-server")

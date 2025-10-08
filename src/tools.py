@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 """MCP Server Tools - Collection of useful tools for the LLM."""
 
 import os
 import subprocess
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
