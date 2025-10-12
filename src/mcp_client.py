@@ -6,13 +6,11 @@ import json
 import logging
 import sys
 from typing import Any, Dict, List, Optional
-from contextlib import asynccontextmanager
 
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
 import ollama
 
-from src.config import OLLAMA_HOST, OLLAMA_MODEL, MCP_SERVER_NAME, LOG_LEVEL
+from src.config import OLLAMA_HOST, OLLAMA_MODEL, LOG_LEVEL
+from src.tools import MCPTools, TOOL_DEFINITIONS
 
 # Configure logging
 logging.basicConfig(
@@ -26,51 +24,35 @@ class MCPClient:
     """MCP Client with Ollama LLM integration."""
 
     def __init__(self):
-        self.session: Optional[ClientSession] = None
+        self.mcp_tools = MCPTools()
         self.tools: List[Dict[str, Any]] = []
         self.ollama_client = ollama.Client(host=OLLAMA_HOST)
         self.conversation_history: List[Dict[str, Any]] = []
 
-    async def connect(self, server_script_path: str):
+    async def connect(self):
         """
-        Connect to the MCP server.
-
-        Args:
-            server_script_path: Path to the MCP server script
+        Initialize the MCP client and load tools.
         """
-        logger.info(f"Connecting to MCP server: {server_script_path}")
+        logger.info("Initializing MCP client with local tools")
 
-        server_params = StdioServerParameters(
-            command="python3",
-            args=[server_script_path],
-            env=None
-        )
-
-        self.read_stream, self.write_stream = await stdio_client(server_params).__aenter__()
-        self.session = await ClientSession(self.read_stream, self.write_stream).__aenter__()
-
-        # Initialize session
-        await self.session.initialize()
-        logger.info("MCP session initialized")
-
-        # Get available tools
+        # Load available tools
         await self._load_tools()
 
+        logger.info("MCP client initialized")
+
     async def _load_tools(self):
-        """Load available tools from the MCP server."""
-        logger.info("Loading tools from MCP server")
+        """Load available tools from tool definitions."""
+        logger.info("Loading tools")
 
-        response = await self.session.list_tools()
-
-        # Convert MCP tools to Ollama format
+        # Convert tool definitions to Ollama format
         self.tools = []
-        for tool in response.tools:
+        for tool_def in TOOL_DEFINITIONS:
             ollama_tool = {
                 "type": "function",
                 "function": {
-                    "name": tool.name,
-                    "description": tool.description,
-                    "parameters": tool.inputSchema
+                    "name": tool_def["name"],
+                    "description": tool_def["description"],
+                    "parameters": tool_def["inputSchema"]
                 }
             }
             self.tools.append(ollama_tool)
@@ -79,7 +61,7 @@ class MCPClient:
 
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         """
-        Call a tool on the MCP server.
+        Call a tool directly.
 
         Args:
             tool_name: Name of the tool to call
@@ -91,15 +73,34 @@ class MCPClient:
         logger.info(f"Calling tool: {tool_name} with arguments: {arguments}")
 
         try:
-            result = await self.session.call_tool(tool_name, arguments)
+            # Route to appropriate tool method
+            if tool_name == "calculator":
+                result = self.mcp_tools.calculator(arguments.get("expression", ""))
+            elif tool_name == "get_current_time":
+                result = self.mcp_tools.get_current_time()
+            elif tool_name == "list_files":
+                result = self.mcp_tools.list_files(arguments.get("directory", "."))
+            elif tool_name == "read_file":
+                result = self.mcp_tools.read_file(
+                    arguments.get("file_path", ""),
+                    arguments.get("max_lines", 100)
+                )
+            elif tool_name == "write_file":
+                result = self.mcp_tools.write_file(
+                    arguments.get("file_path", ""),
+                    arguments.get("content", "")
+                )
+            elif tool_name == "system_info":
+                result = self.mcp_tools.system_info()
+            elif tool_name == "execute_command":
+                result = self.mcp_tools.execute_command(arguments.get("command", ""))
+            else:
+                result = {
+                    "success": False,
+                    "error": f"Unknown tool: {tool_name}"
+                }
 
-            # Extract text content from result
-            if result.content and len(result.content) > 0:
-                content = result.content[0]
-                if hasattr(content, 'text'):
-                    return json.loads(content.text)
-
-            return {"success": False, "error": "No content returned from tool"}
+            return result
 
         except Exception as e:
             logger.error(f"Error calling tool {tool_name}: {e}")
@@ -183,8 +184,6 @@ class MCPClient:
         logger.info("Conversation history reset")
 
     async def close(self):
-        """Close the MCP connection."""
-        if self.session:
-            await self.session.__aexit__(None, None, None)
-        logger.info("MCP client connection closed")
+        """Close the MCP client."""
+        logger.info("MCP client closed")
 

@@ -26,12 +26,9 @@ class MCPChatCLI:
         self.client = MCPClient()
         self.running = False
 
-    async def start(self, server_script_path: str):
+    async def start(self):
         """
         Start the CLI interface.
-
-        Args:
-            server_script_path: Path to the MCP server script
         """
         self.running = True
 
@@ -44,18 +41,18 @@ class MCPChatCLI:
             border_style="cyan"
         ))
 
-        # Connect to MCP server
+        # Initialize MCP client
         try:
-            console.print("\n[yellow]Connecting to MCP server...[/yellow]")
-            await self.client.connect(server_script_path)
-            console.print("[green]✓ Connected to MCP server[/green]\n")
+            console.print("\n[yellow]Initializing MCP client...[/yellow]")
+            await self.client.connect()
+            console.print("[green]✓ MCP client ready[/green]\n")
 
             # Display available tools
             tools_list = [tool['function']['name'] for tool in self.client.tools]
             console.print(f"[cyan]Available tools:[/cyan] {', '.join(tools_list)}\n")
 
         except Exception as e:
-            console.print(f"[red]✗ Failed to connect to MCP server: {e}[/red]")
+            console.print(f"[red]✗ Failed to initialize MCP client: {e}[/red]")
             return
 
         # Main chat loop
@@ -98,17 +95,9 @@ class MCPChatCLI:
 
 async def main():
     """Main entry point for CLI."""
-    # Determine server script path
-    project_root = Path(__file__).parent.parent
-    server_script = project_root / "src" / "mcp_server.py"
-
-    if not server_script.exists():
-        console.print(f"[red]Error: Server script not found at {server_script}[/red]")
-        sys.exit(1)
-
     # Start CLI
     cli = MCPChatCLI()
-    await cli.start(str(server_script))
+    await cli.start()
 
 
 if __name__ == "__main__":
