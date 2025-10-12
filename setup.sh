@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # MCP Client & Server Setup Script
-# This script sets up the environment on a cloud machine
 
 set -e
 

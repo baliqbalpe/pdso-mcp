@@ -8,8 +8,6 @@ A complete Model Context Protocol (MCP) client with local LLM integration using 
 
 ## 🚀 Quick Start
 
-Get up and running in 3 steps:
-
 ```bash
 # 1. Clone the repository
 git clone https://github.com/baliqbalpe/pdso-mcp.git
@@ -63,59 +61,11 @@ That's it! The setup script installs everything automatically.
 
 ## 💻 Installation
 
-### Automated Installation (Recommended)
-
 ```bash
 git clone https://github.com/baliqbalpe/pdso-mcp.git
 cd pdso-mcp
 chmod +x setup.sh
 ./setup.sh
-```
-
-### Manual Installation
-
-```bash
-# 1. Create virtual environment
-python3 -m virtualenv venv
-source venv/bin/activate
-
-# 2. Install dependencies
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
-
-# 3. Install Ollama
-curl -fsSL https://ollama.com/install.sh | sh
-
-# 4. Start Ollama and pull model
-nohup ollama serve > ollama.log 2>&1 &
-sleep 3
-ollama pull llama3.2:3b
-
-# 5. Create config
-cp env.example .env
-mkdir -p data
-```
-
-### Cloud Deployment
-
-Perfect for DigitalOcean, AWS, GCP, Azure, etc.:
-
-```bash
-# SSH into your cloud machine
-ssh root@your-cloud-ip
-
-# Clone and setup
-git clone https://github.com/baliqbalpe/pdso-mcp.git
-cd pdso-mcp
-./setup.sh
-
-# Run in background with tmux
-apt install -y tmux
-tmux new -s mcp
-./start.sh
-
-# Detach: Ctrl+B then D
-# Reattach: tmux attach -t mcp
 ```
 
 ---
