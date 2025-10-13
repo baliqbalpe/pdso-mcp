@@ -1,8 +1,8 @@
-# MCP Client with Local LLM
+# MCP Basic - Learning MCP with Local LLM
 
-A complete Model Context Protocol (MCP) client with local LLM integration using Ollama. Chat with AI that can use tools - no API keys needed, runs entirely on your machine.
+A basic demonstration of Model Context Protocol (MCP) using local LLM with Ollama. This project showcases how to build an MCP client with tool integration - perfect for learning MCP fundamentals without API keys, runs entirely on your machine.
 
-**Repository**: https://github.com/baliqbalpe/pdso-mcp
+**Repository**: https://github.com/baliqbalpe/mcp-basic
 
 ---
 
@@ -10,8 +10,8 @@ A complete Model Context Protocol (MCP) client with local LLM integration using 
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/baliqbalpe/pdso-mcp.git
-cd pdso-mcp
+git clone https://github.com/baliqbalpe/mcp-basic.git
+cd mcp-basic
 
 # 2. Run automated setup
 chmod +x setup.sh start.sh
@@ -62,8 +62,8 @@ That's it! The setup script installs everything automatically.
 ## 💻 Installation
 
 ```bash
-git clone https://github.com/baliqbalpe/pdso-mcp.git
-cd pdso-mcp
+git clone https://github.com/baliqbalpe/mcp-basic.git
+cd mcp-basic
 chmod +x setup.sh
 ./setup.sh
 ```
@@ -166,7 +166,7 @@ nano .env  # Change OLLAMA_MODEL=your-model
 ./start.sh
 
 # Or manually
-cd /root/pdso-mcp
+cd /root/mcp-basic
 source venv/bin/activate
 python3 main.py
 ```
@@ -250,7 +250,7 @@ ollama pull llama3.2:3b
 
 ```bash
 # Check you're in project directory
-pwd  # Should show: /root/pdso-mcp
+pwd  # Should show: /root/mcp-basic
 
 # Check venv is activated
 which python3  # Should show: .../venv/bin/python3
@@ -273,7 +273,7 @@ nano .env  # Change to OLLAMA_MODEL=llama3.2:1b
 ### After Reboot
 
 ```bash
-cd /root/pdso-mcp
+cd /root/mcp-basic
 source venv/bin/activate
 nohup ollama serve > ollama.log 2>&1 &
 sleep 3
@@ -308,7 +308,7 @@ python3 main.py
 ## 📁 Project Structure
 
 ```
-pdso-mcp/
+mcp-basic/
 ├── src/
 │   ├── __init__.py
 │   ├── config.py          # Configuration
@@ -419,5 +419,5 @@ Feel free to:
 
 **Built with ❤️ using Model Context Protocol and Ollama**
 
-Questions? Open an issue on [GitHub](https://github.com/baliqbalpe/pdso-mcp)
+Questions? Open an issue on [GitHub](https://github.com/baliqbalpe/mcp-basic)
 
