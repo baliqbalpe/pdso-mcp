@@ -4,6 +4,11 @@
 
 set -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+echo "========================================"
+echo "Working directory: $SCRIPT_DIR"
 echo "========================================"
 echo "MCP Client & Server Setup"
 echo "========================================"
@@ -24,6 +29,19 @@ fi
 PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
 echo -e "${GREEN}Python $PYTHON_VERSION found${NC}"
 
+# Install required system packages (Debian/Ubuntu)
+if command -v apt &> /dev/null; then
+    echo -e "\n${YELLOW}Installing system packages...${NC}"
+
+    # Extract major.minor version (e.g., "3.10")
+    PYTHON_MAJOR_MINOR=$(echo $PYTHON_VERSION)
+    VENV_PACKAGE="python${PYTHON_MAJOR_MINOR}-venv"
+
+    apt update -qq
+    apt install -y python3-pip $VENV_PACKAGE
+    echo -e "${GREEN}System packages installed${NC}"
+fi
+
 # Install virtualenv if not present
 echo -e "\n${YELLOW}Checking virtualenv...${NC}"
 if ! python3 -m pip show virtualenv &> /dev/null; then
@@ -33,12 +51,17 @@ fi
 
 # Create virtual environment
 echo -e "\n${YELLOW}Creating virtual environment...${NC}"
-if [ -d "venv" ]; then
-    echo -e "${YELLOW}Removing existing venv directory...${NC}"
+if [ -d "venv" ] && [ ! -f "venv/bin/activate" ]; then
+    echo -e "${YELLOW}Removing corrupted venv directory...${NC}"
     rm -rf venv
 fi
-python3 -m virtualenv venv
-echo -e "${GREEN}Virtual environment created${NC}"
+
+if [ -d "venv" ] && [ -f "venv/bin/activate" ]; then
+    echo -e "${GREEN}Virtual environment already exists${NC}"
+else
+    python3 -m virtualenv venv
+    echo -e "${GREEN}Virtual environment created${NC}"
+fi
 
 # Activate virtual environment
 echo -e "\n${YELLOW}Activating virtual environment...${NC}"
