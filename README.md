@@ -59,6 +59,31 @@ That's it! The setup script installs everything automatically.
 
 ---
 
+## 📦 Tested Versions
+
+This project has been tested with the following dependency versions to ensure stability:
+
+### Core Dependencies
+- **Python**: 3.8+ (recommended 3.10+)
+- **pip**: 24.2
+- **Ollama**: 0.3.x or later
+
+### Python Packages (pinned in requirements.txt)
+- **mcp**: 1.1.2
+- **httpx**: 0.27.2
+- **aiohttp**: 3.10.5
+- **ollama**: 0.3.3
+- **python-dotenv**: 1.0.1
+- **click**: 8.1.7
+- **rich**: 13.9.2
+- **pydantic**: 2.9.2
+
+**Last tested**: October 2025
+
+> **Note**: All Python package versions are pinned in `requirements.txt` to prevent breaking changes. The setup script will install pip 24.2 and Ollama's latest stable version.
+
+---
+
 ## 💻 Installation
 
 ```bash

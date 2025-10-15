@@ -69,7 +69,7 @@ echo -e "\n${YELLOW}Activating virtual environment...${NC}"
 
 # Upgrade pip
 echo -e "\n${YELLOW}Upgrading pip...${NC}"
-python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade pip==24.2
 
 # Install requirements
 echo -e "\n${YELLOW}Installing dependencies...${NC}"
