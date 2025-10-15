@@ -106,12 +106,15 @@ class MCPServerApp:
     async def run(self):
         """Run the MCP server."""
         logger.info(f"Starting MCP Server: {MCP_SERVER_NAME}")
+        logger.info("Server is ready to accept connections via STDIO")
         async with stdio_server() as (read_stream, write_stream):
+            logger.info("Client connected via STDIO")
             await self.server.run(
                 read_stream,
                 write_stream,
                 self.server.create_initialization_options()
             )
+            logger.info("Server connection closed")
 
 
 async def main():

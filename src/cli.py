@@ -43,13 +43,16 @@ class MCPChatCLI:
 
         # Initialize MCP client
         try:
-            console.print("\n[yellow]Initializing MCP client...[/yellow]")
+            console.print("\n[yellow]Starting MCP server subprocess...[/yellow]")
+            console.print("[yellow]Connecting to MCP server via STDIO...[/yellow]")
             await self.client.connect()
-            console.print("[green]✓ MCP client ready[/green]\n")
+            console.print("[green]✓ MCP server connected[/green]")
+            console.print("[green]✓ MCP session initialized[/green]\n")
 
-            # Display available tools
+            # Display available tools (discovered via MCP protocol)
             tools_list = [tool['function']['name'] for tool in self.client.tools]
-            console.print(f"[cyan]Available tools:[/cyan] {', '.join(tools_list)}\n")
+            console.print(f"[cyan]Discovered {len(tools_list)} tools via MCP protocol:[/cyan]")
+            console.print(f"[dim]{', '.join(tools_list)}[/dim]\n")
 
         except Exception as e:
             console.print(f"[red]✗ Failed to initialize MCP client: {e}[/red]")

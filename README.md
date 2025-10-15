@@ -1,8 +1,67 @@
 # MCP Basic - Learning MCP with Local LLM
 
-A basic demonstration of Model Context Protocol (MCP) using local LLM with Ollama. This project showcases how to build an MCP client with tool integration - perfect for learning MCP fundamentals without API keys, runs entirely on your machine.
+A complete implementation of Model Context Protocol (MCP) using local LLM with Ollama. This project showcases the full MCP architecture with proper client-server communication via JSON-RPC over STDIO - perfect for learning MCP fundamentals without API keys, runs entirely on your machine.
 
 **Repository**: https://github.com/baliqbalpe/mcp-basic
+
+---
+
+## 🏗️ Architecture
+
+This project implements the **full MCP protocol specification**:
+
+```
+┌─────────────────────────────────────────────────┐
+│                    User                          │
+└─────────────────────┬───────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────┐
+│               CLI (cli.py)                       │
+└─────────────────────┬───────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────┐
+│         MCP Client (mcp_client.py)               │
+│  ┌──────────────────────────────────────────┐   │
+│  │  - Spawns MCP Server subprocess          │   │
+│  │  - Connects via STDIO                    │   │
+│  │  - Discovers tools (list_tools)          │   │
+│  │  - Executes tools (call_tool)            │   │
+│  │  - Integrates with Ollama for chat       │   │
+│  └──────────────────────────────────────────┘   │
+└───────────┬──────────────────┬──────────────────┘
+            │                  │
+            │ JSON-RPC         │ HTTP
+            │ over STDIO       │
+            ▼                  ▼
+┌───────────────────┐   ┌──────────────────┐
+│   MCP Server      │   │   Ollama LLM     │
+│ (mcp_server.py)   │   │  (localhost)     │
+│  ┌─────────────┐  │   └──────────────────┘
+│  │list_tools() │  │
+│  │call_tool()  │  │
+│  └─────────────┘  │
+└────────┬──────────┘
+         │
+         ▼
+┌───────────────────┐
+│   MCPTools        │
+│   (tools.py)      │
+│  - calculator     │
+│  - list_files     │
+│  - read_file      │
+│  - etc.           │
+└───────────────────┘
+```
+
+### Key Components:
+
+1. **MCP Client** - Acts as the MCP Host, spawns server, discovers tools dynamically
+2. **MCP Server** - Standalone subprocess exposing tools via JSON-RPC over STDIO
+3. **Transport Layer** - STDIO communication (standard MCP transport)
+4. **Protocol** - JSON-RPC 2.0 with MCP message types
+5. **LLM Integration** - Ollama for natural language interaction
 
 ---
 
@@ -27,8 +86,11 @@ That's it! The setup script installs everything automatically.
 
 ## 🌟 Features
 
+- ✅ **Full MCP Protocol** - Complete JSON-RPC 2.0 over STDIO implementation
+- ✅ **Client-Server Architecture** - Proper separation with subprocess communication
+- ✅ **Dynamic Tool Discovery** - Tools discovered at runtime via `list_tools()`
+- ✅ **8 Built-in Tools** - File operations, calculations, system info
 - ✅ **Local LLM** - Runs Ollama models (Llama 3.2, Mistral) locally
-- ✅ **7 Built-in Tools** - File operations, calculations, system info
 - ✅ **Interactive CLI** - Beautiful terminal interface
 - ✅ **No API Keys** - Completely private, runs offline
 - ✅ **Cloud Ready** - Easy deployment on any Linux server
@@ -250,6 +312,17 @@ python3 main.py
 
 ## 🔧 Troubleshooting
 
+### MCP Server Connection Issues
+
+```bash
+# Check if server can run standalone
+python3 src/mcp_server.py
+# Should show: "Starting MCP Server" and wait for connections
+
+# Check logs
+# Look for "Client connected via STDIO" in logs
+```
+
 ### Ollama Not Running
 
 ```bash
@@ -337,8 +410,9 @@ mcp-basic/
 ├── src/
 │   ├── __init__.py
 │   ├── config.py          # Configuration
-│   ├── tools.py           # MCP tools
-│   ├── mcp_client.py      # Client with Ollama
+│   ├── tools.py           # MCP tools implementation
+│   ├── mcp_server.py      # MCP Server (STDIO, JSON-RPC)
+│   ├── mcp_client.py      # MCP Client (spawns server, Ollama integration)
 │   └── cli.py             # Interactive CLI
 ├── data/                  # Data directory
 ├── main.py                # Entry point
@@ -366,8 +440,10 @@ mcp-basic/
 ### Adding New Tools
 
 1. Add tool method to `MCPTools` class in `src/tools.py`
-2. Add tool definition to `TOOL_DEFINITIONS`
-3. Add routing in `src/mcp_client.py` `call_tool()` method
+2. Add tool definition to `TOOL_DEFINITIONS` in `src/tools.py`
+3. Add routing in `src/mcp_server.py` `call_tool()` handler
+
+**That's it!** The client will automatically discover the new tool via the MCP protocol.
 
 Example:
 
@@ -391,10 +467,12 @@ def my_tool(param: str) -> Dict[str, Any]:
     }
 }
 
-# In src/mcp_client.py call_tool()
-elif tool_name == "my_tool":
-    result = self.mcp_tools.my_tool(arguments.get("param", ""))
+# In src/mcp_server.py call_tool()
+elif name == "my_tool":
+    result = self.tools.my_tool(arguments.get("param", ""))
 ```
+
+The client will automatically discover this new tool on next startup!
 
 ### Testing
 
@@ -423,6 +501,8 @@ python3 main.py
 3. More detailed tool descriptions = better tool usage
 4. Monitor resources with `htop` when running
 5. Use tmux/screen for persistent sessions on cloud
+6. The MCP server runs as a subprocess - you'll see "Starting MCP server subprocess" on startup
+7. Tools are discovered dynamically - no need to restart client when adding tools to server
 
 ---
 
