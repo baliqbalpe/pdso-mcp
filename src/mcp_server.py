@@ -74,6 +74,8 @@ class MCPServerApp:
                         arguments.get("file_path", ""),
                         arguments.get("content", "")
                     )
+                elif name == "create_directory":
+                    result = self.tools.create_directory(arguments.get("directory_path", ""))
                 elif name == "system_info":
                     result = self.tools.system_info()
                 elif name == "execute_command":

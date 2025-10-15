@@ -172,6 +172,37 @@ class MCPTools:
             }
 
     @staticmethod
+    def create_directory(directory_path: str) -> Dict[str, Any]:
+        """
+        Create a directory at the specified path.
+
+        Args:
+            directory_path: Path where the directory should be created
+
+        Returns:
+            Dictionary with operation result
+        """
+        try:
+            path = Path(directory_path).expanduser()
+            path.mkdir(parents=True, exist_ok=True)
+
+            return {
+                "success": True,
+                "directory": str(path.absolute()),
+                "message": f"Directory created successfully: {path.absolute()}"
+            }
+        except PermissionError as e:
+            return {
+                "success": False,
+                "error": f"Permission denied: {str(e)}. You may need elevated privileges to create this directory."
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    @staticmethod
     def system_info() -> Dict[str, Any]:
         """
         Get system information.
@@ -308,6 +339,20 @@ TOOL_DEFINITIONS = [
                 }
             },
             "required": ["file_path", "content"]
+        }
+    },
+    {
+        "name": "create_directory",
+        "description": "Create a directory at the specified path. Creates parent directories if needed.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "directory_path": {
+                    "type": "string",
+                    "description": "Path where the directory should be created"
+                }
+            },
+            "required": ["directory_path"]
         }
     },
     {
