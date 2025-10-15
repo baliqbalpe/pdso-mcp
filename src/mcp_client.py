@@ -90,6 +90,8 @@ class MCPClient:
                     arguments.get("file_path", ""),
                     arguments.get("content", "")
                 )
+            elif tool_name == "create_directory":
+                result = self.mcp_tools.create_directory(arguments.get("directory_path", ""))
             elif tool_name == "system_info":
                 result = self.mcp_tools.system_info()
             elif tool_name == "execute_command":
