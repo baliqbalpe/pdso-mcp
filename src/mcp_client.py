@@ -8,6 +8,7 @@ import sys
 import os
 from typing import Any, Dict, List, Optional
 from pathlib import Path
+from contextlib import AsyncExitStack
 
 import ollama
 from mcp import ClientSession, StdioServerParameters
@@ -32,10 +33,7 @@ class MCPClient:
         self.conversation_history: List[Dict[str, Any]] = []
         self.session: Optional[ClientSession] = None
         self._server_params: Optional[StdioServerParameters] = None
-        self._read_stream = None
-        self._write_stream = None
-        self._stdio_context = None
-        self._session_context = None
+        self.exit_stack = AsyncExitStack()
 
     async def connect(self):
         """
@@ -58,12 +56,16 @@ class MCPClient:
 
         # Connect to server via STDIO
         try:
-            self._stdio_context = stdio_client(self._server_params)
-            self._read_stream, self._write_stream = await self._stdio_context.__aenter__()
+            # Use AsyncExitStack for cleaner resource management (official MCP pattern)
+            stdio_transport = await self.exit_stack.enter_async_context(
+                stdio_client(self._server_params)
+            )
+            read_stream, write_stream = stdio_transport
 
             # Create client session
-            self._session_context = ClientSession(self._read_stream, self._write_stream)
-            self.session = await self._session_context.__aenter__()
+            self.session = await self.exit_stack.enter_async_context(
+                ClientSession(read_stream, write_stream)
+            )
 
             # Initialize the session (MCP handshake)
             logger.info("Initializing MCP session")
@@ -225,14 +227,9 @@ class MCPClient:
         logger.info("Closing MCP client")
 
         try:
-            # Close session context
-            if self._session_context and self.session:
-                await self._session_context.__aexit__(None, None, None)
-                self.session = None
-
-            # Close STDIO context (this will terminate the server subprocess)
-            if self._stdio_context:
-                await self._stdio_context.__aexit__(None, None, None)
+            # AsyncExitStack handles cleanup in reverse order automatically
+            await self.exit_stack.aclose()
+            self.session = None
 
             logger.info("MCP client closed successfully")
         except Exception as e:
